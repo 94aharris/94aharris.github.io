@@ -34,6 +34,6 @@ Lastly, it is my small stab at chronicalling my own work so that in a few years 
 
  ~ Anthony
 
- *Admins, may your DataBases stay online and your pager be silent!*
+ *For all the Admins, may your pagers be silent!*
 
 

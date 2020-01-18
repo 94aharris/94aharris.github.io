@@ -6,4 +6,7 @@ layout: base
 
 <div role="main" class="container">
   {{ content }}
+  {% if jekyll.environment == 'production' %}
+  {% include analytics.html %}
+  {% endif %}
 </div>

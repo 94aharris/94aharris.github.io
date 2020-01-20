@@ -35,5 +35,3 @@ Lastly, it is my small stab at chronicalling my own work so that in a few years 
  ~ Anthony
 
  *For all the Admins, may your pagers be silent!*
-
-

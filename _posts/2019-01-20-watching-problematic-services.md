@@ -2,8 +2,6 @@
 layout: post
 title: Watching Problematic Services
 subtitle: a stop-gap solution for stopping services
-gh-repo: daattali/beautiful-jekyll
-gh-badge: [star, fork, follow]
 tags: [script, solution, services]
 comments: True
 ---

@@ -24,7 +24,11 @@ $computer = @("computer1","computer2")
 Services can sometimes be in a degraded, stopping, or other state which is not 'Stopped' but is not running. We want to target any which are not Running.
 
 ```powershell
-$StoppedServices = Get-Service -ComputerName $Computer | Where-Object {($_.StartType -eq "Automatic") -and ($_.Status -ne "Running")}
+$StoppedServices = Get-Service -ComputerName $Computer |
+    Where-Object {
+        ($_.StartType -eq "Automatic") -and ($_.Status -ne "Running")
+    }
+
 $StoppedServices # Output Services
 ```
 
@@ -39,10 +43,16 @@ I decided to use the **-match** operator as it allows the flexibility of perform
 $Service = "Foo"
 
 # Watch Specific Services
-$WatchServices = Get-Service -ComputerName $Computer | Where-Object {$_.Displayname -match $Service}
+$WatchServices = Get-Service -ComputerName $Computer |
+    Where-Object {
+        $_.Displayname -match $Service
+    }
 
 # Compare Stopped to specific watched services and output to see the overlap
-$StoppedServices | Where-Object {$WatchServices.ServiceName -contains $_.ServiceName}
+$StoppedServices |
+    Where-Object {
+        $WatchServices.ServiceName -contains $_.ServiceName
+    }
 ```
 
 Of course simply knowing which of the Services we are watching are not running does not help our operational metrics. We actually want to attempt to start the services.
@@ -58,7 +68,10 @@ Start-Service -name <ServiceName> -ComputerName <Computer> -NoWait
 Unfortunately, the environment I was working with at the time was using an older version of PowerShell without this capability. Fortunately, this same parallelism can be achieved through **Invoke-Command** and using the **-asjob** parameter to make the command run against a certain computer as a job in the background. The **-ScriptBlock**, where we pass the command to run, cannot directly accept our local variable. Instead this is passed in an **-ArgumentList** which creates an array of any variables we may want to pass to the remote computer. The specific variable is then retrieved by specifying its place in the **$args** array.
 
 ```powershell
-Invoke-Command -ComputerName <ComputerName> -AsJob -ScriptBlock { Start-Service -name $args[0]} -ArgumentList <ServiceToStart>
+Invoke-Command -ComputerName <ComputerName> -AsJob `
+-ScriptBlock {
+    Start-Service -name $args[0]
+} -ArgumentList <ServiceToStart>
 ```
 
 ## Putting it All Together
@@ -77,13 +90,20 @@ $computer = @("computer1","computer2")
 $Service = "Foo"
 
 # Watch Specific Services
-$WatchServices = Get-Service -ComputerName $Computer | Where-Object {$_.Displayname -match $Service}
+$WatchServices = Get-Service -ComputerName $Computer |
+Where-Object {
+    $_.Displayname -match $Service
+}
 
 # Attempt to Start up Watched services that are in a 'stopped' state as a remotely invoked job
 $WatchServices |
      Where-Object {$_.Status -ne "Running"} |
          ForEach-Object {
-            Invoke-Command -ComputerName $_.MachineName -AsJob -ScriptBlock {Start-Service -name $args[0] } -ArgumentList $_.ServiceName | Out-Null
+            Invoke-Command -ComputerName $_.MachineName `
+            -AsJob -ScriptBlock {
+                Start-Service -name $args[0]
+            } -ArgumentList $_.ServiceName |
+                Out-Null
         }
 
 Get-Job #See the jobs we started
@@ -93,5 +113,8 @@ $Output = Get-Job | Receive-Job # Get Job output so we don't lose it
 $Output # Out Job output
 
 # Check again the status of our watch services
-Get-Service -ComputerName $Computer | Where-Object {$_.DisplayName -Match $Service}
+Get-Service -ComputerName $Computer |
+    Where-Object {
+        $_.DisplayName -Match $Service
+    }
 ```

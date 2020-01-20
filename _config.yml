@@ -61,6 +61,7 @@ footer-link-col: "#404040"
 # Important: you must keep the "name" parameter, everything else you can remove
 author:
   name: Anthony Harris
+  email: Admin@PSsnipits.io
 
 # Select your active Social Network Links.
 # Uncomment the links you want to show in the footer and add your information to each link.
